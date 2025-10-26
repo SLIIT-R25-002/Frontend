@@ -53,7 +53,7 @@ function ModelViewer() {
     //     Material_type: "Concrete"
     // };
 
-    const UhiSimuBaseUrl = process.env.REACT_APP_UHI_SIMULATION_BACKEND_URL || 'http://localhost:4200';
+    const UhiSimuBaseUrl = process.env.REACT_APP_UHI_SIMULATION_BACKEND_URL || 'http://localhost:4200/api/simulation';
     const weartherAPIKey = process.env.REACT_APP_WEATHER_API_KEY || '229b7c42c71d41f99ae44120252003';
 
     const inputGroupStyle = { display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 };
