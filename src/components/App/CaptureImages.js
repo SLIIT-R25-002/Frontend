@@ -43,18 +43,24 @@ const { Title, Text, Paragraph } = Typography;
 // Utility function to convert Firestore timestamp to JavaScript timestamp
 const getTimestampValue = (timestamp) => {
   if (!timestamp) return 0;
-  
+
   // If it's already a number (JavaScript timestamp), return it
-  if (typeof timestamp === 'number') {
+  if (typeof timestamp === "number") {
     return timestamp;
   }
-  
+
   // If it's a Firestore timestamp object
-  if (timestamp && typeof timestamp === 'object' && timestamp.seconds !== undefined) {
+  if (
+    timestamp &&
+    typeof timestamp === "object" &&
+    timestamp.seconds !== undefined
+  ) {
     // Convert Firestore timestamp to JavaScript timestamp (milliseconds)
-    return timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1000000);
+    return (
+      timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1000000)
+    );
   }
-  
+
   return 0;
 };
 
@@ -101,11 +107,11 @@ const CaptureImages = () => {
   // Confirm delete with modal
   const confirmDelete = (image) => {
     Modal.confirm({
-      title: 'Delete Image',
+      title: "Delete Image",
       content: `Are you sure you want to delete this image? This action cannot be undone.`,
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
       onOk: () => handleDeleteImage(image.id),
     });
   };
@@ -180,11 +186,11 @@ const CaptureImages = () => {
       collection(db, "sessions", sessionId, "images"),
       (snapshot) => {
         // Clean up previous segment listeners
-        segmentUnsubscribers.forEach(unsubFn => unsubFn());
+        segmentUnsubscribers.forEach((unsubFn) => unsubFn());
         segmentUnsubscribers = [];
 
         const imgs = [];
-        
+
         snapshot.forEach((documment) => {
           const imageData = { id: documment.id, ...documment.data() };
           imageData.segments = []; // Initialize empty segments array
@@ -192,7 +198,14 @@ const CaptureImages = () => {
 
           // Set up real-time listener for segments of this image
           const segmentUnsub = onSnapshot(
-            collection(db, "sessions", sessionId, "images", documment.id, "segments"),
+            collection(
+              db,
+              "sessions",
+              sessionId,
+              "images",
+              documment.id,
+              "segments"
+            ),
             (segmentsSnapshot) => {
               const segments = [];
               segmentsSnapshot.forEach((segDoc) => {
@@ -200,22 +213,29 @@ const CaptureImages = () => {
               });
 
               // Update the segments for this specific image
-              setImages(prevImages => {
-                const updatedImages = prevImages.map(img => {
+              setImages((prevImages) => {
+                const updatedImages = prevImages.map((img) => {
                   if (img.id === documment.id) {
                     return { ...img, segments };
                   }
                   return img;
                 });
-                
+
                 // Sort by timestamp (newest first)
-                updatedImages.sort((a, b) => getTimestampValue(b.timestamp) - getTimestampValue(a.timestamp));
+                updatedImages.sort(
+                  (a, b) =>
+                    getTimestampValue(b.timestamp) -
+                    getTimestampValue(a.timestamp)
+                );
                 console.log("Images with updated segments:", updatedImages);
                 return updatedImages;
               });
             },
             (segError) => {
-              console.error(`Error listening to segments for image ${documment.id}:`, segError);
+              console.error(
+                `Error listening to segments for image ${documment.id}:`,
+                segError
+              );
             }
           );
 
@@ -223,7 +243,10 @@ const CaptureImages = () => {
         });
 
         // Initial set of images (segments will be updated by their individual listeners)
-        const sortedImages = imgs.sort((a, b) => getTimestampValue(b.timestamp) - getTimestampValue(a.timestamp));
+        const sortedImages = imgs.sort(
+          (a, b) =>
+            getTimestampValue(b.timestamp) - getTimestampValue(a.timestamp)
+        );
         console.log("Initial images:", sortedImages);
         setImages(sortedImages);
       },
@@ -236,7 +259,7 @@ const CaptureImages = () => {
     // Cleanup function
     return () => {
       unsub();
-      segmentUnsubscribers.forEach(unsubFn => unsubFn());
+      segmentUnsubscribers.forEach((unsubFn) => unsubFn());
     };
   }, [sessionId]);
 
@@ -269,8 +292,18 @@ const CaptureImages = () => {
 
       {!sessionId ? (
         // No active session - show create session option
-        <Card style={{ textAlign: "center", backgroundColor: "#fafafa", height: 'calc(100vh-285px)' }}>
-          <Space direction="vertical" size="large" style={{height: '100%', justifyContent: 'center'}}>
+        <Card
+          style={{
+            textAlign: "center",
+            backgroundColor: "#fafafa",
+            height: "calc(100vh-285px)",
+          }}
+        >
+          <Space
+            direction="vertical"
+            size="large"
+            style={{ height: "100%", justifyContent: "center" }}
+          >
             <div>
               <PlusOutlined style={{ fontSize: "48px", color: "#1890ff" }} />
               <Title level={3} style={{ marginTop: "16px" }}>
@@ -297,6 +330,15 @@ const CaptureImages = () => {
               icon={<UnorderedListOutlined />}
             >
               View All Sessions
+            </Button>
+            <Button
+              size="large"
+              onClick={() => {
+                window.location.href =
+                  "https://expo.dev/artifacts/eas/q4wdcaCPpbSshbomCxbRVj.apk";
+              }}
+            >
+              Download Mobile App
             </Button>
           </Space>
         </Card>
@@ -431,7 +473,7 @@ const CaptureImages = () => {
                       onClick={handleShowSessionsList}
                       icon={<UnorderedListOutlined />}
                       size="small"
-                      style={{ width: '100%' }}
+                      style={{ width: "100%" }}
                     >
                       All Sessions
                     </Button>
@@ -439,9 +481,18 @@ const CaptureImages = () => {
                       onClick={handleNewSession}
                       icon={<ReloadOutlined />}
                       size="small"
-                      style={{ width: '100%' }}
+                      style={{ width: "100%" }}
                     >
                       New Session
+                    </Button>
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        window.location.href =
+                          "https://expo.dev/artifacts/eas/q4wdcaCPpbSshbomCxbRVj.apk";
+                      }}
+                    >
+                      Download Mobile App
                     </Button>
                   </Space>
                 </Col>
@@ -510,7 +561,9 @@ const CaptureImages = () => {
                       >
                         <div>
                           <Text strong style={{ fontSize: "12px" }}>
-                            {new Date(getTimestampValue(image.timestamp)).toLocaleTimeString()}
+                            {new Date(
+                              getTimestampValue(image.timestamp)
+                            ).toLocaleTimeString()}
                           </Text>
                         </div>
                         {image.gps && (
@@ -584,7 +637,7 @@ const CaptureImages = () => {
           </Space>
         </Card>
       )}
-      
+
       {/* Gyro Data Modal */}
       <Modal
         title={
@@ -598,7 +651,7 @@ const CaptureImages = () => {
         footer={[
           <Button key="close" onClick={handleModalClose}>
             Close
-          </Button>
+          </Button>,
         ]}
         width={400}
       >
@@ -608,7 +661,9 @@ const CaptureImages = () => {
               <Col span={8}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: "#1890ff" }}>Roll</Text>
+                    <Text strong style={{ color: "#1890ff" }}>
+                      Roll
+                    </Text>
                     <br />
                     <Text code style={{ fontSize: "12px" }}>
                       {selectedImage.gyro.roll?.toFixed(6)}°
@@ -619,7 +674,9 @@ const CaptureImages = () => {
               <Col span={8}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: "#52c41a" }}>Pitch</Text>
+                    <Text strong style={{ color: "#52c41a" }}>
+                      Pitch
+                    </Text>
                     <br />
                     <Text code style={{ fontSize: "12px" }}>
                       {selectedImage.gyro.pitch?.toFixed(6)}°
@@ -630,7 +687,9 @@ const CaptureImages = () => {
               <Col span={8}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: "#fa541c" }}>Yaw</Text>
+                    <Text strong style={{ color: "#fa541c" }}>
+                      Yaw
+                    </Text>
                     <br />
                     <Text code style={{ fontSize: "12px" }}>
                       {selectedImage.gyro.yaw?.toFixed(6)}°
@@ -642,13 +701,15 @@ const CaptureImages = () => {
             <Divider />
             <div>
               <Text strong>Raw Data:</Text>
-              <pre style={{ 
-                backgroundColor: "#f5f5f5", 
-                padding: "8px", 
-                borderRadius: "4px",
-                fontSize: "11px",
-                marginTop: "8px"
-              }}>
+              <pre
+                style={{
+                  backgroundColor: "#f5f5f5",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  fontSize: "11px",
+                  marginTop: "8px",
+                }}
+              >
                 {JSON.stringify(selectedImage.gyro, null, 2)}
               </pre>
             </div>
@@ -669,7 +730,7 @@ const CaptureImages = () => {
         footer={[
           <Button key="close" onClick={handleModalClose}>
             Close
-          </Button>
+          </Button>,
         ]}
         width={500}
       >
@@ -679,7 +740,9 @@ const CaptureImages = () => {
               <Col span={12}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: "#1890ff" }}>Latitude</Text>
+                    <Text strong style={{ color: "#1890ff" }}>
+                      Latitude
+                    </Text>
                     <br />
                     <Text code style={{ fontSize: "12px" }}>
                       {selectedImage.gps.lat?.toFixed(7)}
@@ -690,7 +753,9 @@ const CaptureImages = () => {
               <Col span={12}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: "#52c41a" }}>Longitude</Text>
+                    <Text strong style={{ color: "#52c41a" }}>
+                      Longitude
+                    </Text>
                     <br />
                     <Text code style={{ fontSize: "12px" }}>
                       {selectedImage.gps.lng?.toFixed(7)}
@@ -703,7 +768,9 @@ const CaptureImages = () => {
               <Col span={12}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: "#fa541c" }}>Altitude</Text>
+                    <Text strong style={{ color: "#fa541c" }}>
+                      Altitude
+                    </Text>
                     <br />
                     <Text code style={{ fontSize: "12px" }}>
                       {selectedImage.gps.altitude?.toFixed(2)}m
@@ -714,7 +781,9 @@ const CaptureImages = () => {
               <Col span={12}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: "#722ed1" }}>Accuracy</Text>
+                    <Text strong style={{ color: "#722ed1" }}>
+                      Accuracy
+                    </Text>
                     <br />
                     <Text code style={{ fontSize: "12px" }}>
                       ±{selectedImage.gps.accuracy?.toFixed(2)}m
@@ -726,13 +795,15 @@ const CaptureImages = () => {
             <Divider />
             <div>
               <Text strong>Raw Data:</Text>
-              <pre style={{ 
-                backgroundColor: "#f5f5f5", 
-                padding: "8px", 
-                borderRadius: "4px",
-                fontSize: "11px",
-                marginTop: "8px"
-              }}>
+              <pre
+                style={{
+                  backgroundColor: "#f5f5f5",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  fontSize: "11px",
+                  marginTop: "8px",
+                }}
+              >
                 {JSON.stringify(selectedImage.gps, null, 2)}
               </pre>
             </div>
