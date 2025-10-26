@@ -341,7 +341,7 @@ const AutonomousNavigation = ({
             }
 
             const iotBaseUrl = process.env.REACT_APP_IOT_BASE_URL || 'localhost:5000';
-            const response = await fetch(`http://${iotBaseUrl}/api/set_reference`, {
+            const response = await fetch(`${iotBaseUrl}/api/set_reference`, {
                 method: 'POST',
                 body: formData,
             });
@@ -377,7 +377,7 @@ const AutonomousNavigation = ({
 
         try {
             const iotBaseUrl = process.env.REACT_APP_IOT_BASE_URL || 'localhost:5000';
-            const response = await fetch(`http://${iotBaseUrl}/api/start_stream`, {
+            const response = await fetch(`${iotBaseUrl}/api/start_stream`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -410,7 +410,7 @@ const AutonomousNavigation = ({
     const stopVideoStream = async () => {
         try {
             const iotBaseUrl = process.env.REACT_APP_IOT_BASE_URL || 'localhost:5000';
-            const response = await fetch(`http://${iotBaseUrl}/api/stop_stream`, {
+            const response = await fetch(`${iotBaseUrl}/api/stop_stream`, {
                 method: 'POST'
             });
 
@@ -434,7 +434,7 @@ const AutonomousNavigation = ({
     const checkFrameMatches = useCallback(async () => {
         try {
             const iotBaseUrl = process.env.REACT_APP_IOT_BASE_URL || 'localhost:5000';
-            const response = await fetch(`http://${iotBaseUrl}/api/next_frame`);
+            const response = await fetch(`${iotBaseUrl}/api/next_frame`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
