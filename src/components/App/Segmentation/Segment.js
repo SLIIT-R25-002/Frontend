@@ -29,8 +29,8 @@ import { db } from "../../../firebase";
 const API_CONFIG = {
   BASE_URL: process.env.REACT_APP_SEGMENT_BASE_URL, // "https://da1b6f385d10.ngrok-free.app",
   ENDPOINTS: {
-    ANALYZE: "api/analyze",
-    CALCULATE_AREA: "api/calculate_area",
+    ANALYZE: "api/segment/analyze",
+    CALCULATE_AREA: "api/segment/calculate_area",
   },
 };
 
