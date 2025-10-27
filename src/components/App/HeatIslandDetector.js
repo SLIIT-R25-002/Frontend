@@ -72,6 +72,8 @@ const buildImagePayload = (item) => {
 const API_BASE = process.env.REACT_APP_VLM_BASE_URL ||
   'http://localhost:5000';
 
+console.log("VLM BASE =", process.env.REACT_APP_VLM_BASE_URL);
+
 // Utility: stable IDs
 const uid = () =>
   (typeof crypto !== 'undefined' && crypto?.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()));
