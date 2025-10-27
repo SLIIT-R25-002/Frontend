@@ -1,9 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-// import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-// import { TransformControls } from 'three-transformcontrols';
 import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import SunCalc from 'suncalc';
 import { exportUHIMultiPDF } from "../App/ReportGenerator";
@@ -333,11 +331,6 @@ function ModelViewer() {
                 'Density (kg/m³)',
                 'Thermal_Conductivity (W/m·K)',
                 'Specific_Heat_Capacity (J/kg·K)',
-                'Emissivity',
-                'Infrared_Reflectivity',
-                'Porosity',
-                'Solar_Absorptance',
-                'Solar_Reflectance',
                 'Area',
                 'Mass',
                 'Material_type',
@@ -357,6 +350,11 @@ function ModelViewer() {
                 if (node.name && node.name.startsWith('concrete_wall_base')) {
                     return; // Skip this node
                 }
+                console.log(node.name);
+                if (node.name && /^Object_\d+$/.test(node.name)) {
+                    console.log("skip");
+                    return; // Skip this node
+                }
                 const { userData } = node; // ✅ Fixed: destructuring
                 const windSpeedMps = parseFloat(((localWindSpeedKmph * 1000) / 3600).toFixed(4));
 
@@ -366,11 +364,6 @@ function ModelViewer() {
                     userData.Density || '',
                     userData.Thermal_Conductivity?.toFixed(6) || '',
                     userData.Specific_Heat_Capacity || '',
-                    userData.Emissivity?.toFixed(6) || '',
-                    userData.Infrared_Reflectivity?.toFixed(6) || '',
-                    userData.Porosity || 0,
-                    userData.Solar_Absorptance?.toFixed(6) || '',
-                    userData.Solar_Reflectance?.toFixed(6) || '',
                     userData.Area?.toFixed(6),
                     userData.Mass?.toFixed(6),
                     userData.Material_type || 'Unknown',
@@ -399,10 +392,8 @@ function ModelViewer() {
             console.warn("Please upload a building model first.");
             return;
         }
-
         const date = dateTime.split('T')[0];
         const hour = parseInt(dateTime.split('T')[1].split(':')[0], 10);
-
         let windKmph = 10;
         try {
             const res = await fetch(
@@ -416,39 +407,34 @@ function ModelViewer() {
         } catch (err) {
             console.warn("Weather API failed, using default wind speed", err);
         }
-
         setWindSpeedKmph(windKmph);
 
         const sunLight = scene.children.find(c => c.isDirectionalLight);
         if (!sunLight) return;
-
         const sunDirection = new THREE.Vector3();
         sunLight.getWorldDirection(sunDirection).normalize();
         const raycaster = new THREE.Raycaster();
-
         resetHeatmap();
 
         model.traverse((node) => {
             if (node.isMesh && node.geometry) {
-                const { position } = node.geometry.attributes; // ✅ Fixed: destructuring
+                const { position } = node.geometry.attributes;
                 if (!position) return;
-
                 const worldMatrix = node.matrixWorld;
                 let totalVertices = 0;
                 let exposedVertices = 0;
-
                 for (let i = 0; i < position.count; i += 1) { // ✅ Fixed: i += 1
+                    console.log(position.count);
+                    console.log(i);
                     const vertex = new THREE.Vector3().fromBufferAttribute(position, i);
                     vertex.applyMatrix4(worldMatrix);
                     totalVertices += 1;
-
                     raycaster.set(vertex, sunDirection);
                     const intersects = raycaster.intersectObjects(scene.children, true);
                     if (intersects.length === 0 || intersects[0].object === node) {
                         exposedVertices += 1;
                     }
                 }
-
                 const exposure = totalVertices > 0 ? (exposedVertices / totalVertices) * 100 : 0;
                 node.userData.Sun_Exposure = exposure;
                 node.userData.exposurePercent = exposure;
