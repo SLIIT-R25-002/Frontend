@@ -383,7 +383,7 @@ const AutonomousNavigation = ({
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    stream_source: `https://macular-patrimonially-olinda.ngrok-free.dev/stream` // http://${camIP}:81
+                    stream_source: `http://${camIP}:81/stream` // 
                 })
             });
 
