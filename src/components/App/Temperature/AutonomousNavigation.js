@@ -383,7 +383,7 @@ const AutonomousNavigation = ({
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    stream_source: `http://${camIP}:81/stream`
+                    stream_source: `http://${camIP}:81/stream` // 
                 })
             });
 
