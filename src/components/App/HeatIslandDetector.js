@@ -72,7 +72,7 @@ const buildImagePayload = (item) => {
 const API_BASE = process.env.REACT_APP_VLM_BASE_URL ||
   'http://localhost:5000';
 
-// Ensure we're using the correct load balancer URL
+// Ensure using the correct load balancer URL
 const apiUrl = API_BASE.toLowerCase();
 console.log("VLM BASE =", apiUrl);
 
