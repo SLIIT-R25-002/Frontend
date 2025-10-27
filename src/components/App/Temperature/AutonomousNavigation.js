@@ -936,13 +936,6 @@ const AutonomousNavigation = ({
                                                 fontSize: '16px'
                                             }}
                                         />
-                                        {useGpsSimulation && (
-                                            <div style={{ marginTop: '8px' }}>
-                                                <Text type="warning" style={{ fontSize: '12px' }}>
-                                                    🔄 Simulated GPS
-                                                </Text>
-                                            </div>
-                                        )}
                                     </Card>
                                 </Col>
 
