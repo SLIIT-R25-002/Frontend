@@ -1112,10 +1112,10 @@ const HeatIslandDetector = () => {
             <Button variant="outline-secondary" onClick={() => addSegment(item.id)}>+ Add Segment</Button>
 
             {/* Results */}
-            {item.loadingPredict && (
+            {(item.loadingPredict || item.loadingRecommend) && (
               <div className="text-center my-3">
                 <div className="spinner-border text-primary" role="status" />
-                <p className="mt-2">Analyzing...</p>
+                <p className="mt-2">{item.loadingPredict ? "Analyzing..." : "Generating recommendations..."}</p>
               </div>
             )}
 
