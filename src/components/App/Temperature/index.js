@@ -309,6 +309,7 @@ const Temperature = () => {
             if (data.includes('CAM_IP:')) {
                 const ip = data.split('CAM_IP:')[1];
                 setCamIP(ip);
+                console.log(`Camera IP received: ${ip}`)
                 addLogMessage(`📷 Camera IP received: ${ip}`);
                 return;
             }
