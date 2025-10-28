@@ -19,7 +19,7 @@ function ModelViewer() {
     const [error, setError] = useState(null);
     const [showSimModal, setShowSimModal] = useState(false);
 
-    // 🌍 User Inputs
+    //  User Inputs
     const [lat, setLat] = useState(6.9271);
     const [lon, setLon] = useState(79.8612);
     const [dateTime, setDateTime] = useState(() => {
@@ -31,27 +31,14 @@ function ModelViewer() {
     const [humidity, setHumidity] = useState(64);
     const [simulationStatus, setSimulationStatus] = useState(false);
 
-    // 🌬️ Wind & Heatmap
+    // Wind & Heatmap
     const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
     const [windSpeedKmph, setWindSpeedKmph] = useState(0);
     const windVectorsRef = useRef([]);
     const originalMaterialsRef = useRef(new Map());
     const [simulationSuccess, setSimulationSuccess] = useState(false);
 
-    // const defaults = {
-    //     Thickness: 0.2,
-    //     Density: 2400,
-    //     Thermal_Conductivity: 1.8,
-    //     Specific_Heat_Capacity: 900,
-    //     Emissivity: 0.85,
-    //     Infrared_Reflectivity: 0.2,
-    //     Porosity: 12,
-    //     Solar_Absorptance: 0.8,
-    //     Solar_Reflectance: 0.2,
-    //     Material_type: "Concrete"
-    // };
-
-    const UhiSimuBaseUrl = process.env.REACT_APP_UHI_SIMULATION_BACKEND_URL || 'https://distinctively-tricostate-zane.ngrok-free.dev/api/simulation';
+    const UhiSimuBaseUrl = process.env.REACT_APP_UHI_SIMULATION_BACKEND_URL || 'https://briella-ledgeless-teofila.ngrok-free.dev/api/simulation';
     const weartherAPIKey = process.env.REACT_APP_WEATHER_API_KEY || '229b7c42c71d41f99ae44120252003';
 
     const inputGroupStyle = { display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 };
@@ -71,12 +58,6 @@ function ModelViewer() {
         background: active ? 'linear-gradient(90deg, #ffc107, #e0a800)' : 'linear-gradient(90deg, #6c757d, #495057)',
         marginLeft: '10px'
     });
-    // const progressBarBackground = {
-    //     height: '20px', backgroundColor: '#e9ecef', borderRadius: '10px', overflow: 'hidden', border: '1px solid #dee2e6'
-    // };
-    // const progressBarFill = {
-    //     height: '100%', width: '100%', background: 'linear-gradient(90deg, #4facfe, #00f2fe)', animation: 'progressFill 2s ease-in-out infinite'
-    // };
 
     // --- Heatmap Functions ---
     const resetHeatmap = () => {
@@ -183,16 +164,13 @@ function ModelViewer() {
         setError(null);
         setSimulationSuccess(false);
 
-        // ✅ Correctly remove the data URL prefix
         const csvString = csvContent.startsWith('data:text/csv;charset=utf-8,')
             ? csvContent.substring('data:text/csv;charset=utf-8,'.length)
             : csvContent;
 
-        // ✅ Log full header for verification
         console.log("CSV Header:", csvString.split('\n')[0]); // Should log full header
         console.log("First data row:", csvString.split('\n')[1]); // Should log first object
 
-        // Create Blob and FormData
         const blob = new Blob([csvString], { type: 'text/csv' });
         const formData = new FormData();
         formData.append('file', blob, 'simulation_input.csv');
@@ -254,7 +232,6 @@ function ModelViewer() {
                     throw new Error('Invalid or failed response from backend');
                 }
 
-                // ✅ Destructure with aliasing for camelCase
                 const {
                     recommendation,
                     segments
@@ -266,19 +243,16 @@ function ModelViewer() {
                     metrics
                 } = recommendation;
 
-                // ✅ Validate segments before mapping
                 if (!Array.isArray(segments)) {
                     console.error('❌ Expected segments to be an array, but got:', segments);
                     throw new Error('Invalid segment data received');
                 }
 
-                // ✅ Prepare item for PDF
                 const item = {
                     id: `snapshot_${Date.now()}`,
                     source: 'manual',
                     imageUrl: dataURL,
                     timestamp: new Date(),
-                    segments, // ✅ Use validated segments
                     results: {
                         summary: {
                             avg_temperature: metrics.avg_temperature,
@@ -301,10 +275,8 @@ function ModelViewer() {
                     recommendation: geminiRecommendation
                 };
 
-                // ✅ Generate PDF
                 await exportUHIMultiPDF([item]);
 
-                // ✅ Download PNG
                 const link = document.createElement('a');
                 link.href = dataURL;
                 link.download = `snapshot_${new Date().toISOString().slice(0, 10)}_${Date.now()}.png`;
@@ -343,19 +315,18 @@ function ModelViewer() {
 
         model.traverse((node) => {
             if (node.isMesh && node.userData.Sun_Exposure !== undefined) {
-                // ✅ Skip any object whose name starts with "Plane"
                 if (node.name && node.name.startsWith('Plane')) {
-                    return; // Skip this node
+                    return; 
                 }
                 if (node.name && node.name.startsWith('concrete_wall_base')) {
-                    return; // Skip this node
+                    return; 
                 }
                 console.log(node.name);
                 if (node.name && /^Object_\d+$/.test(node.name)) {
                     console.log("skip");
-                    return; // Skip this node
+                    return; 
                 }
-                const { userData } = node; // ✅ Fixed: destructuring
+                const { userData } = node; 
                 const windSpeedMps = parseFloat(((localWindSpeedKmph * 1000) / 3600).toFixed(4));
 
                 csvData.push([
@@ -376,13 +347,6 @@ function ModelViewer() {
         });
         const csvContent = `data:text/csv;charset=utf-8,${csvData.map(row => row.join(",")).join("\n")}`;
         runSimulationInMATLAB(csvContent);
-        // const encodedUri = encodeURI(csvContent);
-        // const link = document.createElement("a");
-        // link.setAttribute("href", encodedUri);
-        // link.setAttribute("download", `simulation_result_${new Date().toISOString().slice(0, 10)}.csv`);
-        // document.body.appendChild(link);
-        // link.click();
-        // document.body.removeChild(link);
     };
 
     // --- START SIMULATION ---
@@ -520,7 +484,6 @@ function ModelViewer() {
     const attachTransformControl = (object) => {
         if (!scene || !camera || !renderer || !object) return;
 
-        // ✅ Remove old helper if exists
         if (transformControlRef.current) {
             const oldHelper = transformControlRef.current.getHelper();
             scene.remove(oldHelper);
@@ -544,7 +507,6 @@ function ModelViewer() {
     const loadModel = (file, group, selectable = false) => {
         if (!file || !scene) return;
 
-        // ✅ Clear group before adding new model
         while (group.children.length > 0) {
             const child = group.children[0];
             group.remove(child);
@@ -567,10 +529,8 @@ function ModelViewer() {
                     }
                 });
 
-                // ✅ Add to group (not directly to scene)
                 group.add(model);
 
-                // ✅ Attach transform control only if selectable
                 if (selectable) {
                     attachTransformControl(model);
                 }
@@ -578,7 +538,6 @@ function ModelViewer() {
                 console.error('Error loading GLTF:', err);
             });
         }
-        // ... handle STL
     };
 
     const handleBuildingUpload = (e) => {
@@ -601,8 +560,8 @@ function ModelViewer() {
         setScene(newScene);
 
         const newCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-        newCamera.position.set(0, 10, 15); // Adjust based on your scene size
-        newCamera.lookAt(new THREE.Vector3(0, 0, 0)); // Look at center of scene
+        newCamera.position.set(0, 10, 15); 
+        newCamera.lookAt(new THREE.Vector3(0, 0, 0)); 
         setCamera(newCamera);
 
         const newRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -654,8 +613,8 @@ function ModelViewer() {
             requestAnimationFrame(animate);
 
             windVectorsRef.current.forEach(line => {
-                const { material } = line; // ✅ Use destructuring
-                material.offset -= 0.005 * windSpeedKmph; // Faster wind = faster flow
+                const { material } = line; 
+                material.offset -= 0.005 * windSpeedKmph; 
             });
 
             orbitControls.update();
@@ -674,13 +633,8 @@ function ModelViewer() {
             mount.removeChild(newRenderer.domElement);
             newRenderer.dispose();
         };
-    }, [lat, lon, dateTime, windSpeedKmph]); // ✅ Fixed: added windSpeedKmph
+    }, [lat, lon, dateTime, windSpeedKmph]);
 
-    // const setTransformMode = (mode) => { // 'translate' | 'rotate' | 'scale'
-    //     if (transformControlRef.current) {
-    //         transformControlRef.current.setMode(mode);
-    //     }
-    // };
 
     return (
         <div style={{ fontFamily: 'Segoe UI, system-ui, sans-serif', background: '#f0f2f5', minHeight: '100vh' }}>
